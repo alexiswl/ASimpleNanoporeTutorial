@@ -45,9 +45,9 @@ ssh <username>@torquelord.hpc.wehi.edu.au
 ```
 
 The following commands will be needed to navigate around:  
-`pwd, ls, cd`
+`pwd, ls, cd`  
 The following commands will be needed to move and transfer files:  
-`mv, cp, rm, touch`
+`mv, cp, rm, touch`  
 You can practise these on your own computer first before trying on the server.  
 Type `exit` to leave the server and return to your computer.
 

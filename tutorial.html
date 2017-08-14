@@ -57,6 +57,13 @@ conda update conda
 conda install -c anaconda git -y
 ```
 
+We don't need to install anaconda on the server as it is already installed.  
+Just type in the following:  
+
+```bash
+module load anaconda3/4.3.1
+```
+
 ---
 
 # Installing Albacore
@@ -148,6 +155,8 @@ Now let's use conda to install some more analysis tools.
 ---
 
 # Installing useful nanopore tools.
+
+We use minimap2 from Heng Li to align these long inaccurate reads to our genome.
 
 
 ```bash
@@ -317,7 +326,6 @@ canu \
 -genomeSize=3g *.fastq
 ```
 
-???
 
 Full documentation at:
 http://canu.readthedocs.org/en/latest/
@@ -332,8 +340,15 @@ To use Unicycler, you must have short-read illumina data for the same sample.
 
 
 ```bash
-unicycler -1 short_reads_1.fastq.gz -2 short_reads_2.fastq.gz -l long_reads.fastq.gz -o output_dir
+unicycler \
+-1 short_reads_1.fastq.gz \
+-2 short_reads_2.fastq.gz \
+-l long_reads.fastq.gz \
+-o output_dir
 ```
+
+Full documentation at:
+https://github.com/rrwick/Unicycler
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({

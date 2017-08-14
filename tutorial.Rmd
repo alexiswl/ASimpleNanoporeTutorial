@@ -49,6 +49,12 @@ conda update conda
 conda install -c anaconda git -y
 ```
 
+We don't need to install anaconda on the server as it is already installed.  
+Just type in the following:  
+```{bash, eval=FALSE}
+module load anaconda3/4.3.1
+```
+
 ---
 
 # Installing Albacore
