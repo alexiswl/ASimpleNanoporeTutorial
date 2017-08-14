@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HPC at WEHI</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Alexis Lucattini" />
+    <link href="libs/remark-css-0.0.1/example.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# HPC at WEHI
+### Alexis Lucattini
+### 2016/12/12
+
+---
+
+
+# Installing commandline tools 
+### (0 to 10 minutes)
+Mac OSX by default does not have command line tools installed.  
+This is a simple fix as shown [here](http://railsapps.github.io/xcode-command-line-tools.html)
+
+Open up 'Terminal' and type in the following.
+
+```bash
+xcode-select -p
+```
+
+`/Applications/Apple Dev Tools/Xcode.app/Contents/Developer` shoud appear as the output.
+If not, type:
+
+```bash
+xcode-select --install
+```
+
+You will also need homebrew. Type the following line into terminal.
+
+```bash
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+
+---
+
+# SSH into the cluster.
+Let's first try and ssh into the cluster. SSH stands for *secure shell login*
+
+
+```bash
+# Use your general wehi login credentials
+ssh &lt;username&gt;@torquelord.hpc.wehi.edu.au
+# This should prompt you for your WEHI password
+```
+
+The following commands will be needed to navigate around:  
+`pwd, ls, cd`
+The following commands will be needed to move and transfer files:  
+`mv, cp, rm, touch`
+You can practise these on your own computer first before trying on the server.  
+Type `exit` to leave the server and return to your computer.
+
+---
+
+# Passwords are annoying.
+Let's use a key so that we don't have to continue entering our password when logging in.
+
+```bash
+# Install ssh-copy-id
+brew install ssh-copy-id
+# Create an ssh-key
+ssh-keygen -t rsa # Then press enter twice.
+# Now copy ssh key to server, you will be prompted for your password, one last time
+ssh-copy-id -i ~/.ssh/id_rsa &lt;username&gt;@torquelord.hpc.wehi.edu.au
+# Now try log in.
+ssh username@torquelord.hpc.wehi.edu.au
+```
+
+---
+
+# Further reading.
+
+### WEHI Tutorials:
+https://connect.wehi.edu.au/research/computationalbiology/Pages/,DanaInfo=catalyst.wehi.edu.au+Research-Computing.aspx
+
+### Steve Parker: Shell scripting
+Very comprehensive guide to using the 'Terminal'.
+Starts at the very basics.
+https://www.amazon.com.au/Shell-Scripting-Tutorial-Steve-Parker-ebook/dp/B00C2EGNSA
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

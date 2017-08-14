@@ -88,12 +88,15 @@ An environment is a list of settings where software versions and paths are all c
 Here we show an example of creating an environment for albacore
 
 ```bash
-conda create --name albacore_env python=3.6 anaconda
+# Swap out python version as 3.5 if we're on our Linux server
+PYTHON_VERSION=3.6
+conda create --name albacore_env python=${PYTHON_VERSION} anaconda
 ```
 
 ---
 
-# Installing albacore into the conda environment 
+# Installing albacore in the conda environment 
+.small[
 Now we have our albacore environment, we must 'source' it.
 
 If you can't remember the name of an environment, you can see all your installed environments using:
@@ -107,14 +110,20 @@ Now activate this environment, and install the .whl file using pip
 ```bash
 # Activate environment
 source activate albacore_env
-# Download albacore pip wheel
+# Create a standard yaml file
+conda env export &gt; standard.yaml
+# Download albacore pip wheel for mac
 wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-1.2.6-cp36-cp36m-macosx_10_11_x86_64.whl
+# Or Linux
+wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-1.2.6-cp35-cp35m-manylinux1_x86_64.whl
 # Install albacore using pip
-pip install ont_albacore-1.2.6-cp36-cp36m-macosx_10_11_x86_64.whl
+pip install ont_albacore-*.whl  # Star represents 
+# Write what we have installed to file
+conda env export &gt; albacore.yaml
 # Decativate the albacore environment
 source deactivate
 ```
-
+]
 
 ???
 
@@ -130,9 +139,11 @@ Albacore is quite dynamic, a with a high-frequency of upgrades.
 conda create --name nanopore_tools_env python=3.6 anaconda
 # Activate the environment
 source activate nanopore_tools_env
+# Create a standard .yaml file (picture of the blank environment)
+conda env export &gt; standard_env.3.6.yaml
 ```
 
-Now let's use conda to install some tools.
+Now let's use conda to install some more analysis tools.
 
 ---
 
@@ -140,14 +151,188 @@ Now let's use conda to install some tools.
 
 
 ```bash
+# Required for poreduck
+conda install -c anaconda paramiko -y
 # Pauvre, for viewing quality and read-length distributions.
 conda install -c bioconda pauvre -y
 # bwa-mem and minimap2 alignment
-conda install -c bioconda bwa 
-conda install minimap2 -y
+conda install -c bioconda bwa -y
+conda install -c bioconda minimap2 -y
 # Samtools and bamtools for sorting and assessing alignments
 conda install -c bioconda samtools -y
 conda install -c bioconda bamtools -y
+# Assemblers:
+conda install -c bioconda unicycler -y
+conda install -c bioconda canu -y
+```
+
+---
+
+# Check what we have installed
+
+
+```bash
+conda env export &gt; nanopore.3.6.yaml
+diff nanopore.3.6.yaml standard.3.6.yaml | grep '==' &gt; requirements.txt
+cat requirements.txt
+# Return to normal environment
+source deactivate
+```
+
+---
+
+# Transferring data across
+
+On the laptop running the MinION we will need to do the following.
+Note sample_name is the name specified when using MinKNOW. 
+
+
+```bash
+source activate nanopore_env
+git clone https://github.com/alexiswl/poreduck.git
+# To run the transfer script we will need to type in the following:
+./poreduck/transfer_fast5_to_server.py \
+--reads_dir &lt;/path/to/reads&gt; \
+--server_name &lt;your_hpc&gt; \
+--user_name &lt;user_on_hpc&gt; \
+--dest_directory &lt;/path/to/dest/on/hpc&gt; \
+--sample_name &lt;name_of_sample&gt; 
+```
+
+
+---
+
+
+# Running albacore
+
+Albacore has two main commands.  
+* `read_fast5_basecaller.py`
+* `full_1d2_analysis.py`
+
+We only use the second one when using the SQK-LSK308 kit.
+
+We can check the options by typing in the following into the terminal
+
+```bash
+source activate albacore_env
+read_fast5_basecaller.py --help
+```
+
+---
+
+# Standard albacore command that are required.
+
+```bash
+read_fast5_basecaller.py \
+--input &lt;path/to/fast5/files&gt; \
+--worker_threads &lt;number_of_threads_used&gt; \
+--save_path &lt;/path/to/albacore/dir/&gt; \
+--flowcell &lt;flowcell_version&gt; \
+--kit &lt;kit_version&gt;
+```
+
+---
+
+# Poreduck: albacore_server_scaled.py
+
+
+```bash
+# Download poreduck
+git clone https://github.com/alexiswl/poreduck.git
+# Update poreduck
+cd poreduck
+git pull origin master
+```
+
+---
+
+# Poreduck: albacore_server_scaled.py
+
+
+```bash
+# Getting help
+albacore_server_scaled.py --help
+# Run albacore through poreduck
+albacore_server_scaled.py \
+--reads_dir &lt;/minion/directory&gt; \
+--kit SQK-LSK108 \
+--flowcell FLO-MIN106 \
+--num_threads 5 \
+--max_processes 10
+```
+
+---
+
+
+# Introduction to qsub
+qsub is the way many users can interact with a HPC, such as Milton.  
+qsub allocates partitions of the server to users in a 'fair' manner.  
+To run qsub, we pipe the 'albacore' command into a 'qsub command' which tells the terminal to run the albacore job on the qsub cluster.
+
+
+
+---
+
+# Pauvre
+* Yield and read-length distribution plots.
+* Statistic plots
+
+```bash
+# Create a margin plot
+pauvre margin plot --fastq &lt;input_fastq_file&gt;
+# Create a summary file.
+pauvre stats --fastq &lt;input.fastq_file&gt;
+```
+
+---
+
+# Aligning to the genome
+
+```bash
+# Create a reference index
+minimap2 -x map-ont -d reference_index /path/to/reference_genome
+# Use minimap2 to align to the genome.
+minimap2 -x map-ont -d reference_index /path/to/fastq &gt; alignment.sam
+# The output is a sam file. We should convert this to a bam file and sort it.
+samtools view -b alignment.sam -o alignment.bam
+# Now sort and index the bam file
+samtools sort -o alignment.sorted.bam alignment.bam
+samtools index alignment.sorted.bam alignment.sorted.bai
+```
+
+---
+
+# Canu: de novo assembly.
+
+Canu is a de novo assembler. i.e completes assembly of a genome without using a reference.  
+It requires the user to have an estimate of the genome size prior to use.  
+Designed for long-inaccurate reads.  
+Corrects, trims and then assembles each genome.
+
+
+```bash
+canu \
+-d canu_assembly_directory \
+-nanopore-raw \ 
+-genomeSize=3g *.fastq
+```
+
+???
+
+Full documentation at:
+http://canu.readthedocs.org/en/latest/
+
+---
+
+# Unicycler: for hybrid assembly.
+
+Unicycler is different to canu as it takes in short reads as a method of polishing the genome.
+
+To use Unicycler, you must have short-read illumina data for the same sample.
+
+
+```bash
+unicycler -1 short_reads_1.fastq.gz -2 short_reads_2.fastq.gz -l long_reads.fastq.gz -o output_dir
 ```
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

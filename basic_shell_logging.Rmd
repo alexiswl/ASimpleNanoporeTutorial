@@ -1,0 +1,82 @@
+---
+title: "HPC at WEHI"
+subtitle: ""
+author: "Alexis Lucattini"
+date: "2016/12/12"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+# Installing commandline tools 
+### (0 to 10 minutes)
+Mac OSX by default does not have command line tools installed.  
+This is a simple fix as shown [here](http://railsapps.github.io/xcode-command-line-tools.html)
+
+Open up 'Terminal' and type in the following.
+```{bash, eval=FALSE}
+xcode-select -p
+```
+
+`/Applications/Apple Dev Tools/Xcode.app/Contents/Developer` shoud appear as the output.
+If not, type:
+```{bash, eval=FALSE}
+xcode-select --install
+```
+
+You will also need homebrew. Type the following line into terminal.
+```{bash, eval=FALSE}
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+
+---
+
+# SSH into the cluster.
+Let's first try and ssh into the cluster. SSH stands for *secure shell login*
+
+```{bash, eval=FALSE}
+# Use your general wehi login credentials
+ssh <username>@torquelord.hpc.wehi.edu.au
+# This should prompt you for your WEHI password
+```
+
+The following commands will be needed to navigate around:  
+`pwd, ls, cd`
+The following commands will be needed to move and transfer files:  
+`mv, cp, rm, touch`
+You can practise these on your own computer first before trying on the server.  
+Type `exit` to leave the server and return to your computer.
+
+---
+
+# Passwords are annoying.
+Let's use a key so that we don't have to continue entering our password when logging in.
+```{bash, eval=FALSE}
+# Install ssh-copy-id
+brew install ssh-copy-id
+# Create an ssh-key
+ssh-keygen -t rsa # Then press enter twice.
+# Now copy ssh key to server, you will be prompted for your password, one last time
+ssh-copy-id -i ~/.ssh/id_rsa <username>@torquelord.hpc.wehi.edu.au
+# Now try log in.
+ssh username@torquelord.hpc.wehi.edu.au
+```
+
+---
+
+# Further reading.
+
+### WEHI Tutorials:
+https://connect.wehi.edu.au/research/computationalbiology/Pages/,DanaInfo=catalyst.wehi.edu.au+Research-Computing.aspx
+
+### Steve Parker: Shell scripting
+Very comprehensive guide to using the 'Terminal'.
+Starts at the very basics.
+https://www.amazon.com.au/Shell-Scripting-Tutorial-Steve-Parker-ebook/dp/B00C2EGNSA
+
+Free version is here:
+https://www.shellscript.sh
