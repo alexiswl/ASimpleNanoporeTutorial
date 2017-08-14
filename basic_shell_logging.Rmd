@@ -2,7 +2,7 @@
 title: "HPC at WEHI"
 subtitle: ""
 author: "Alexis Lucattini"
-date: "2016/12/12"
+date: "2017/08/17"
 output:
   xaringan::moon_reader:
     lib_dir: libs
