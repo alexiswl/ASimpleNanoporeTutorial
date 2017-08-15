@@ -30,7 +30,7 @@ xcode-select --install
 
 ---
 
-# Install anaconda3 (approx. 5 mins)
+# Install anaconda3  on desktop (approx. 5 mins)
 Open up terminal and type in the following lines of code.  
 (Not those starting with '#', these are comments)
 
@@ -49,8 +49,8 @@ conda update conda
 conda install -c anaconda git -y
 ```
 
-We don't need to install anaconda on the server as it is already installed.  
-Just type in the following:  
+When on a server that uses modules, anaconda may already be installed.
+If so, just type in the following:  
 ```{bash, eval=FALSE}
 module load anaconda3/4.3.1
 ```
@@ -80,13 +80,13 @@ Worth checking out that Linux distro on Windows.
 
 ---
 
-# Creating a conda environment (20 mins)
+# Creating a conda environment (10 mins)
 An environment is a list of settings where software versions and paths are all calibrated for a particular program or list of programs. However, unlike your general workspace, an environment must be 'sourced' and installations of programs into an 'environment' will not disrupt your general workspace.
 
 Here we show an example of creating an environment for albacore
 ```{bash, eval=FALSE}
 # Swap out python version as 3.5 if we're on our Linux server
-PYTHON_VERSION=3.6
+PYTHON_VERSION=3.5
 conda create --name albacore_env python=${PYTHON_VERSION} anaconda
 ```
 
@@ -105,6 +105,8 @@ Now activate this environment, and install the .whl file using pip
 ```{bash, eval=FALSE}
 # Activate environment
 source activate albacore_env
+# Update the standard conda library (especially important when using conda 3.5)
+conda update --all
 # Create a standard yaml file
 conda env export > standard.yaml
 # Download albacore pip wheel for mac
@@ -133,6 +135,8 @@ Albacore is quite dynamic, a with a high-frequency of upgrades.
 conda create --name nanopore_tools_env python=3.6 anaconda
 # Activate the environment
 source activate nanopore_tools_env
+# Update the standard conda library
+conda update --all
 # Create a standard .yaml file (picture of the blank environment)
 conda env export > standard_env.3.6.yaml
 ```
@@ -146,8 +150,6 @@ Now let's use conda to install some more analysis tools.
 We use minimap2 from Heng Li to align these long inaccurate reads to our genome.
 
 ```{bash, eval=FALSE}
-# Required for poreduck
-conda install -c anaconda paramiko -y
 # Pauvre, for viewing quality and read-length distributions.
 conda install -c bioconda pauvre -y
 # bwa-mem and minimap2 alignment
@@ -261,7 +263,7 @@ To run qsub, we pipe the 'albacore' command into a 'qsub command' which tells th
 
 
 ---
-
+.pull-left[
 # Pauvre
 * Yield and read-length distribution plots.
 * Statistic plots
@@ -271,7 +273,10 @@ pauvre margin plot --fastq <input_fastq_file>
 # Create a summary file.
 pauvre stats --fastq <input.fastq_file>
 ```
-
+]
+.pull-right[
+<img src=images/pauvre_example.png width="70%">
+]
 ---
 
 # Aligning to the genome

@@ -1,0 +1,226 @@
+---
+title: "Testing poreduck"
+subtitle: "In memory of two poor ducks."
+author: "Alexis Lucattini"
+date: "2017/08/17"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:    
+      highlight: pygments
+      highlightLines: true
+      countIncrementalSlides: false
+    
+---
+
+# What is poreduck
+.pull-left[
+Two simple scripts designed to:
+1. transfer data to a server.
+2. Run albacore on said server.
+]
+.pull-right[
+<img src=images/poreduck_logo.png width="70%">
+]
+
+### Before commencing this tutorial.
+Please complete the basic_shell_logging tutorial.
+
+---
+
+# Installing conda on desktop (5 mins)
+
+```{bash, eval=FALSE}
+# Set the version number
+anaconda_version="4.4.0"
+# Download anaconda3 using the wget command
+wget https://repo.continuum.io/archive/Anaconda3-${anaconda_version}-MacOSX-x86_64.sh
+# Install anaconda. 
+# -b forces install without asking questions.
+# -p sets anaconda to be installed in our home directory.
+bash Anaconda3-${anaconda_version}-MacOSX-x86_64.sh -b -p $HOME/anaconda3
+# Now we need to update it.
+conda update --all
+```
+
+---
+
+# Creating a conda environment (10 mins)
+.small[An environment is a list of settings where software versions and paths are all calibrated for a particular program or list of programs.  
+However, unlike your general workspace, an environment must be 'sourced' and installations of programs into an 'environment' will not disrupt your general workspace.
+]
+```{bash, eval=FALSE}
+PYTHON_VERSION=3.6
+conda create --name poreduck_env python=${PYTHON_VERSION} anaconda
+# Source the environment
+source activate poreduck_env
+# We will need the latest version of git.
+conda install -c anaconda git -y
+# And pigz
+conda install -c anaconda pigz -y
+# And paramiko
+conda install -c anaconda paramiko -y
+# Create a directory for github projects and move to this directory.
+mkdir -p GitHub && cd GitHub
+# Now download poreduck
+git clone https://github.com/alexiswl/poreduck.git
+# Now deactivate the environment, we need to edit some files.
+source deactivate
+```
+
+---
+
+# Modifying our environment.
+We can further modify our conda environment so that poreduck is in our path.
+```{bash, eval=FALSE}
+cd $HOME/anaconda3/envs/poreduck_env
+mkdir -p ./etc/conda/activate.d
+mkdir -p ./etc/conda/deactivate.d
+touch ./etc/conda/activate.d/env_vars.sh
+touch ./etc/conda/deactivate.d/env_vars.sh
+```
+
+---
+
+# Editing the two env_vars files.
+Open up the files in textEdit or the command line and add the following to:
+1. `anaconda3/envs/poreduck_env/etc/conda/activate.d/env_vars.sh`
+```{bash, eval=FALSE}
+#!/bin/bash
+OLDPATH=$PATH
+PATH=$PATH:$HOME/GitHub/poreduck
+```
+
+2. `anaconda3/envs/poreduck_env/etc/conda/deactivate.d/env_vars.sh`
+```{bash, eval=FALSE}
+#!/bin/bash
+PATH=$OLDPATH
+```
+
+???
+
+source https://conda.io/docs/using/envs.html
+
+---
+
+# Did this work?
+
+The which command should return a link to our github file.
+
+```{bash, eval=FALSE}
+source activate poreduck_env
+which transfer_fast5_to_server.py
+```
+
+---
+
+# Downloading some test data (10 mins)
+
+We can use curl to download the data from cloudstor
+```{bash, eval=FALSE}
+curl -o poreduck_test_files.tar.gz \  
+https://cloudstor.aarnet.edu.au/plus/index.php/s/vTbIOQdILUOgazt/download
+```
+
+Now lets move that to where MinKNOW places our runs.  
+* Linux: `/var/lib/MinKNOW/data/reads`
+* Mac: `/Library/MinKNOW/data/reads`
+* Windows: 
+
+`mv poreduck_test_files.tar.gz`
+`cd /path/to/MinKNOW/data/reads/`
+`tar -xf poreduck_test_files.tar.gz`
+We can now confirm by typing
+`ls`
+We should see two folders ending in '_TEST'
+
+---
+
+# Running the transfer command
+```{bash, eval=FALSE}
+transfer_fast5_to_server.py \   
+--reads_dir </path/to/reads> \ 
+--server_name <your_hpc> \ 
+--user_name <user_on_hpc> \   
+--dest_directory </path/to/dest/on/hpc> \  
+--sample_name TEST
+```
+
+### Verying success
+
+Type the following command into the terminal.  
+We should see our files zipped up nicely.
+```{bash, eval=FALSE}
+ssh user_name@server_name "ls -R /path/to/dest/on/hpc"
+```
+
+---
+
+# Using albacore_server_scaled.py
+
+This is a little more complex and needs to be customised to your HPC.  
+At the moment this script supports both SGE and TORQUE.  
+
+This script has no dependencies outside of conda so we don't have an issue there.  
+We do have an issue however with albacore requiring python3.5 and us being on python 3.6.  
+
+```{bash, eval=FALSE}
+# SSH into our server
+ssh <username>@<servername>
+# Swap out python version as version 3.5 as we're now on our Linux server
+PYTHON_VERSION=3.5
+conda create --name albacore_env python=${PYTHON_VERSION} anaconda
+# Update the conda library
+conda update --all
+# Download albacore
+wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-1.2.6-cp35-cp35m-manylinux1_x86_64.whl
+# Install albacore
+pip install ont_albacore*.whl
+# Exit environment
+source deactivate
+```
+
+---
+
+# Download poreduck
+```{bash, eval=FALSE}
+git clone https://github.com/alexiswl/poreduck.git
+# Now run the help command to see our parameters
+./poreduck/albcore_server_scaled.py --help
+```
+
+---
+
+# The template files
+We have four template files, two SGE, two for PBS/Torque.  
+One for each HPC type will represent a template file extraction job.  
+One for each HPC type will represent a template albacore execution job.  
+Let's look at these two files, unfortunately we cannot use a GUI on the server.  
+```{bash, eval=FALSE}
+# We can use the cat command to visualise the files.
+cat poreduck/templates/qsub_templates/albacore_pbs_template.sh
+```
+
+Everything in capital letters will be replaced during the course of the run.
+We just need to make sure that the script activates the albacore environment **before** running the COMMAND and then deactivates the environment once again.
+
+---
+
+# Running albacore_server_scaled.
+Using our uploaded lambda data let's run the following:
+```{bash, eval=FALSE}
+./poreduck/albacore_server_scaled.py \   
+--reads_dir </path/to/dest/on/hpc/fast5> \ 
+--qsub_type TORQUE \
+--qsub_extraction_template poreduck/qsub_templates/extraction_pbs_template.sh \
+--qsub_albacore_temaplte poreduck/qsub_templates/albacore_pbs_template.sh \
+--sample_name TEST
+```
+
+A logging file should appear.
+You can log into the hpc using another terminal window and type in the following
+```{bash, eval=FALSE}
+cd /path/to/dest/on/hpc/fast5
+cat poreduck_logs/  # Press tab, then press enter.
+```
+
