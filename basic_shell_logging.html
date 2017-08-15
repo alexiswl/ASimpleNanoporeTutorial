@@ -54,9 +54,9 @@ ssh &lt;username&gt;@torquelord.hpc.wehi.edu.au
 ```
 
 The following commands will be needed to navigate around:  
-`pwd, ls, cd`
+`pwd, ls, cd`  
 The following commands will be needed to move and transfer files:  
-`mv, cp, rm, touch`
+`mv, cp, rm, touch`  
 You can practise these on your own computer first before trying on the server.  
 Type `exit` to leave the server and return to your computer.
 
@@ -74,6 +74,22 @@ ssh-keygen -t rsa # Then press enter twice.
 ssh-copy-id -i ~/.ssh/id_rsa &lt;username&gt;@torquelord.hpc.wehi.edu.au
 # Now try log in.
 ssh username@torquelord.hpc.wehi.edu.au
+```
+
+---
+
+# I can't install brew or ssh-copy-id
+That's okay, we can copy our id onto the server
+
+```bash
+scp ~/.ssh/id_rsa.pub &lt;username&gt;@torquelord.hpc.wehi.edu.au
+ssh &lt;username&gt;@torquelord.hpc.wehi.edu.au
+# Now we're on the server; Create a .ssh directory for the server
+mkdir -p -m 600 ~/.ssh
+# Now append that id_rsa.pub key to our list of authorized keys
+cat id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys
+# Our work here is done. Let's delete the .pub file
+rm id_rsa.pub
 ```
 
 ---
