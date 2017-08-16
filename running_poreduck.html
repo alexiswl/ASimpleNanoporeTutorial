@@ -27,6 +27,7 @@ Two simple scripts designed to:
 .pull-right[
 &lt;img src=images/poreduck_logo.png width="70%"&gt;
 ]
+
 ### Before commencing this tutorial.
 Please complete the basic_shell_logging tutorial.
 
@@ -120,6 +121,7 @@ The which command should return a link to our github file.
 ```bash
 source activate poreduck_env
 which transfer_fast5_to_server.py
+source deactivate
 ```
 
 ---
@@ -138,18 +140,23 @@ Now lets move that to where MinKNOW places our runs.
 * Mac: `/Library/MinKNOW/data/reads`
 * Windows: 
 
-`mv poreduck_test_files.tar.gz`
-`cd /path/to/MinKNOW/data/reads/`
-`tar -xf poreduck_test_files.tar.gz`
+`mv poreduck_test_files.tar.gz /path/to/MinKNOW/data/reads`  
+`cd /path/to/MinKNOW/data/reads/`  
+`tar -xf poreduck_test_files.tar.gz`  
 We can now confirm by typing
 `ls`
 We should see two folders ending in '_TEST'
+
+???
+
+curl -o poreduck_test_files.tar.gz https://cloudstor.aarnet.edu.au/plus/index.php/s/vTbIOQdILUOgazt/download
 
 ---
 
 # Running the transfer command
 
 ```bash
+source activate poreduck_env
 transfer_fast5_to_server.py \   
 --reads_dir &lt;/path/to/reads&gt; \ 
 --server_name &lt;your_hpc&gt; \ 
