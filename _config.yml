@@ -1,4 +1,5 @@
 theme: jekyll-theme-minimal
 title: A short introduction to handling MinION data
 description: This site was for the intention of WEHI staff intending to being analysing their MinION data. I have made this tutorial as general as possible for others to also use.
+layout: default
 comments: true
