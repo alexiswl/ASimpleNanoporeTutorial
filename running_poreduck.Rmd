@@ -121,6 +121,10 @@ We can use curl to download the data from cloudstor
 ```{bash, eval=FALSE}
 curl -o poreduck_test_files.tar.gz \  
 https://cloudstor.aarnet.edu.au/plus/index.php/s/vTbIOQdILUOgazt/download
+# Verify the installation:
+curl -o poreduck_test_files.md5 \
+https://cloudstor.aarnet.edu.au/plus/index.php/s/tCVEB3ibMA6C7ob/download
+md5sum -c poreduck_test_files.md5
 ```
 
 Now lets move that to where MinKNOW places our runs.  
