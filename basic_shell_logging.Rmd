@@ -74,12 +74,18 @@ That's okay, we can copy our id onto the server
 scp ~/.ssh/id_rsa.pub <username>@torquelord.hpc.wehi.edu.au:
 ssh <username>@torquelord.hpc.wehi.edu.au
 # Now we're on the server; Create a .ssh directory for the server
-mkdir -p -m 600 ~/.ssh
+mkdir -p -m 700 ~/.ssh
 # Now append that id_rsa.pub key to our list of authorized keys
 cat id_rsa.pub >> ~/.ssh/authorized_keys
-# Our work here is done. Let's delete the .pub file
+# Our work here is done. Let's delete the .pub file and leave the server
 rm id_rsa.pub
+exit
 ```
+
+???
+
+700 seems to allow write while 600 does not which does not make sense.
+
 
 ---
 

@@ -37,10 +37,11 @@ anaconda_version="4.4.0"
 wget https://repo.continuum.io/archive/Anaconda3-${anaconda_version}-MacOSX-x86_64.sh
 # If wget is not found, try curl
 curl -o Anaconda3-${anaconda_version}-MacOSX-x86_64.sh https://repo.continuum.io/archive/Anaconda3-${anaconda_version}-MacOSX-x86_64.sh
-# Install anaconda. 
-# -b forces install without asking questions.
+# Install anaconda. -b forces install without asking questions.
 # -p sets anaconda to be installed in our home directory.
 bash Anaconda3-${anaconda_version}-MacOSX-x86_64.sh -b -p $HOME/anaconda3
+# Add anaconda to path, note single quotes, not double quotes.
+echo 'export PATH=$PATH:$HOME/anaconda3/bin' >> ~/.bash_profile
 # Exit terminal and open it again.
 # Now we need to update it.
 conda update --all
@@ -51,6 +52,8 @@ conda update --all
 I can't find conda.
 Add the following to the bash profile
 export PATH=$HOME/anaconda3/bin:$PATH
+
+
 
 ---
 
@@ -81,6 +84,7 @@ source deactivate
 
 How to remove an environment
 `conda remove --name poreduck_env --all`
+What pigz 
 
 ---
 
