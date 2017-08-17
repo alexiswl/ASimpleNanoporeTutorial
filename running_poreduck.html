@@ -47,9 +47,16 @@ curl -o Anaconda3-${anaconda_version}-MacOSX-x86_64.sh https://repo.continuum.io
 # -b forces install without asking questions.
 # -p sets anaconda to be installed in our home directory.
 bash Anaconda3-${anaconda_version}-MacOSX-x86_64.sh -b -p $HOME/anaconda3
+# Exit terminal and open it again.
 # Now we need to update it.
 conda update --all
 ```
+
+???
+
+I can't find conda.
+Add the following to the bash profile
+export PATH=$HOME/anaconda3/bin:$PATH
 
 ---
 
@@ -76,6 +83,11 @@ git clone https://github.com/alexiswl/poreduck.git
 # Now deactivate the environment, we need to edit some files.
 source deactivate
 ```
+
+???
+
+How to remove an environment
+`conda remove --name poreduck_env --all
 
 ---
 
@@ -146,6 +158,7 @@ Now lets move that to where MinKNOW places our runs.
 * Mac: `/Library/MinKNOW/data/reads`
 * Windows: 
 
+`mkdir -p /path/to/MinKNOW/data/reads`
 `mv poreduck_test_files.tar.gz /path/to/MinKNOW/data/reads`  
 `cd /path/to/MinKNOW/data/reads/`  
 `tar -xf poreduck_test_files.tar.gz`  
