@@ -82,7 +82,7 @@ ssh username@torquelord.hpc.wehi.edu.au
 That's okay, we can copy our id onto the server
 
 ```bash
-scp ~/.ssh/id_rsa.pub &lt;username&gt;@torquelord.hpc.wehi.edu.au
+scp ~/.ssh/id_rsa.pub &lt;username&gt;@torquelord.hpc.wehi.edu.au:
 ssh &lt;username&gt;@torquelord.hpc.wehi.edu.au
 # Now we're on the server; Create a .ssh directory for the server
 mkdir -p -m 600 ~/.ssh
