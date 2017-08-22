@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>HPC at WEHI</title>
+    <title>SSH onto a HPC</title>
     <meta charset="utf-8">
     <meta name="author" content="Alexis Lucattini" />
     <link href="libs/remark-css-0.0.1/example.css" rel="stylesheet" />
@@ -10,7 +10,7 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# HPC at WEHI
+# SSH onto a HPC
 ### Alexis Lucattini
 ### 2017/08/17
 
@@ -48,9 +48,9 @@ Let's first try and ssh into the cluster. SSH stands for *secure shell login*
 
 
 ```bash
-# Use your general wehi login credentials
-ssh &lt;username&gt;@torquelord.hpc.wehi.edu.au
-# This should prompt you for your WEHI password
+# Use your login credentials to ssh onto the server
+ssh &lt;username&gt;@&lt;server_name&gt;
+# This should prompt you for your password
 ```
 
 The following commands will be needed to navigate around:  
@@ -59,6 +59,11 @@ The following commands will be needed to move and transfer files:
 `mv, cp, rm, touch`  
 You can practise these on your own computer first before trying on the server.  
 Type `exit` to leave the server and return to your computer.
+
+???
+
+For WEHI users, the server name is "torquelord.hpc.wehi.edu.au"
+
 
 ---
 
@@ -71,9 +76,9 @@ brew install ssh-copy-id
 # Create an ssh-key
 ssh-keygen -t rsa # Then press enter twice.
 # Now copy ssh key to server, you will be prompted for your password, one last time
-ssh-copy-id -i ~/.ssh/id_rsa &lt;username&gt;@torquelord.hpc.wehi.edu.au
+ssh-copy-id -i ~/.ssh/id_rsa &lt;username&gt;@&lt;server_name&gt;
 # Now try log in.
-ssh username@torquelord.hpc.wehi.edu.au
+ssh username@&lt;server_name&gt;
 ```
 
 ---
@@ -83,9 +88,9 @@ That's okay, we can copy our id onto the server
 
 ```bash
 scp ~/.ssh/id_rsa.pub &lt;username&gt;@torquelord.hpc.wehi.edu.au:
-ssh &lt;username&gt;@torquelord.hpc.wehi.edu.au
+ssh &lt;username&gt;@&lt;server_name&gt;
 # Now we're on the server; Create a .ssh directory for the server
-mkdir -p -m 600 ~/.ssh
+mkdir -p -m 700 ~/.ssh
 # Now append that id_rsa.pub key to our list of authorized keys
 cat id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys
 # Our work here is done. Let's delete the .pub file
@@ -96,9 +101,6 @@ rm id_rsa.pub
 
 # Further reading.
 
-### WEHI Tutorials:
-https://connect.wehi.edu.au/research/computationalbiology/Pages/,DanaInfo=catalyst.wehi.edu.au+Research-Computing.aspx
-
 ### Steve Parker: Shell scripting
 Very comprehensive guide to using the 'Terminal'.
 Starts at the very basics.
@@ -106,6 +108,9 @@ https://www.amazon.com.au/Shell-Scripting-Tutorial-Steve-Parker-ebook/dp/B00C2EG
 
 Free version is here:
 https://www.shellscript.sh
+
+### For those at WEHI, these may be useful:
+https://connect.wehi.edu.au/research/computationalbiology/Pages/,DanaInfo=catalyst.wehi.edu.au+Research-Computing.aspx
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({

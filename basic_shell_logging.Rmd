@@ -1,5 +1,5 @@
 ---
-title: "HPC at WEHI"
+title: "SSH onto a HPC"
 subtitle: ""
 author: "Alexis Lucattini"
 date: "2017/08/17"
@@ -39,9 +39,9 @@ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/
 Let's first try and ssh into the cluster. SSH stands for *secure shell login*
 
 ```{bash, eval=FALSE}
-# Use your general wehi login credentials
-ssh <username>@torquelord.hpc.wehi.edu.au
-# This should prompt you for your WEHI password
+# Use your login credentials to ssh onto the server
+ssh <username>@<server_name>
+# This should prompt you for your password
 ```
 
 The following commands will be needed to navigate around:  
@@ -50,6 +50,11 @@ The following commands will be needed to move and transfer files:
 `mv, cp, rm, touch`  
 You can practise these on your own computer first before trying on the server.  
 Type `exit` to leave the server and return to your computer.
+
+???
+
+For WEHI users, the server name is "torquelord.hpc.wehi.edu.au"
+
 
 ---
 
@@ -61,9 +66,9 @@ brew install ssh-copy-id
 # Create an ssh-key
 ssh-keygen -t rsa # Then press enter twice.
 # Now copy ssh key to server, you will be prompted for your password, one last time
-ssh-copy-id -i ~/.ssh/id_rsa <username>@torquelord.hpc.wehi.edu.au
+ssh-copy-id -i ~/.ssh/id_rsa <username>@<server_name>
 # Now try log in.
-ssh username@torquelord.hpc.wehi.edu.au
+ssh username@<server_name>
 ```
 
 ---
@@ -72,9 +77,9 @@ ssh username@torquelord.hpc.wehi.edu.au
 That's okay, we can copy our id onto the server
 ```{bash, eval=FALSE}
 scp ~/.ssh/id_rsa.pub <username>@torquelord.hpc.wehi.edu.au:
-ssh <username>@torquelord.hpc.wehi.edu.au
+ssh <username>@<server_name>
 # Now we're on the server; Create a .ssh directory for the server
-mkdir -p -m 600 ~/.ssh
+mkdir -p -m 700 ~/.ssh
 # Now append that id_rsa.pub key to our list of authorized keys
 cat id_rsa.pub >> ~/.ssh/authorized_keys
 # Our work here is done. Let's delete the .pub file
@@ -85,9 +90,6 @@ rm id_rsa.pub
 
 # Further reading.
 
-### WEHI Tutorials:
-https://connect.wehi.edu.au/research/computationalbiology/Pages/,DanaInfo=catalyst.wehi.edu.au+Research-Computing.aspx
-
 ### Steve Parker: Shell scripting
 Very comprehensive guide to using the 'Terminal'.
 Starts at the very basics.
@@ -95,3 +97,6 @@ https://www.amazon.com.au/Shell-Scripting-Tutorial-Steve-Parker-ebook/dp/B00C2EG
 
 Free version is here:
 https://www.shellscript.sh
+
+### For those at WEHI, these may be useful:
+https://connect.wehi.edu.au/research/computationalbiology/Pages/,DanaInfo=catalyst.wehi.edu.au+Research-Computing.aspx
