@@ -82,9 +82,15 @@ ssh <username>@<server_name>
 mkdir -p -m 700 ~/.ssh
 # Now append that id_rsa.pub key to our list of authorized keys
 cat id_rsa.pub >> ~/.ssh/authorized_keys
-# Our work here is done. Let's delete the .pub file
+# Our work here is done. Let's delete the .pub file and leave the server
 rm id_rsa.pub
+exit
 ```
+
+???
+
+700 seems to allow write while 600 does not which does not make sense.
+
 
 ---
 

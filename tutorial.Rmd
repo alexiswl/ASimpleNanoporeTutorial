@@ -263,8 +263,8 @@ To run qsub, we pipe the 'albacore' command into a 'qsub command' which tells th
 
 
 ---
-.pull-left[
 # Pauvre
+.pull-left[
 * Yield and read-length distribution plots.
 * Statistic plots
 ]
