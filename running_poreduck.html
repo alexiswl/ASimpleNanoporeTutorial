@@ -43,10 +43,11 @@ anaconda_version="4.4.0"
 wget https://repo.continuum.io/archive/Anaconda3-${anaconda_version}-MacOSX-x86_64.sh
 # If wget is not found, try curl
 curl -o Anaconda3-${anaconda_version}-MacOSX-x86_64.sh https://repo.continuum.io/archive/Anaconda3-${anaconda_version}-MacOSX-x86_64.sh
-# Install anaconda. 
-# -b forces install without asking questions.
+# Install anaconda. -b forces install without asking questions.
 # -p sets anaconda to be installed in our home directory.
 bash Anaconda3-${anaconda_version}-MacOSX-x86_64.sh -b -p $HOME/anaconda3
+# Add anaconda to path, note single quotes, not double quotes.
+echo 'export PATH=$PATH:$HOME/anaconda3/bin' &gt;&gt; ~/.bash_profile
 # Exit terminal and open it again.
 # Now we need to update it.
 conda update --all
@@ -57,6 +58,8 @@ conda update --all
 I can't find conda.
 Add the following to the bash profile
 export PATH=$HOME/anaconda3/bin:$PATH
+
+
 
 ---
 
@@ -88,6 +91,7 @@ source deactivate
 
 How to remove an environment
 `conda remove --name poreduck_env --all`
+What pigz 
 
 ---
 
@@ -203,17 +207,19 @@ At the moment this script supports both SGE and TORQUE.
 This script has no dependencies outside of conda so we don't have an issue there.  
 We do have an issue however with albacore requiring python3.5 and us being on python 3.6.  
 
+** Update: Albacore now supported on 3.6, we should create a separate environment for it anyway.
+
 
 ```bash
 # SSH into our server
 ssh &lt;username&gt;@&lt;servername&gt;
-# Swap out python version as version 3.5 as we're now on our Linux server
-PYTHON_VERSION=3.5
+# Albacore now supports python3.6!
+PYTHON_VERSION=3.6
 conda create --name albacore_env python=${PYTHON_VERSION} anaconda
 # Update the conda library
 conda update --all
 # Download albacore
-wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-1.2.6-cp35-cp35m-manylinux1_x86_64.whl
+wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-2.0.1-cp36-cp36m-manylinux1_x86_64.whl
 # Install albacore
 pip install ont_albacore*.whl
 # Exit environment

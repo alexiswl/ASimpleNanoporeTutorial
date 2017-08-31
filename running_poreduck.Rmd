@@ -193,16 +193,18 @@ At the moment this script supports both SGE and TORQUE.
 This script has no dependencies outside of conda so we don't have an issue there.  
 We do have an issue however with albacore requiring python3.5 and us being on python 3.6.  
 
+** Update: Albacore now supported on 3.6, we should create a separate environment for it anyway.
+
 ```{bash, eval=FALSE}
 # SSH into our server
 ssh <username>@<servername>
-# Swap out python version as version 3.5 as we're now on our Linux server
-PYTHON_VERSION=3.5
+# Albacore now supports python3.6!
+PYTHON_VERSION=3.6
 conda create --name albacore_env python=${PYTHON_VERSION} anaconda
 # Update the conda library
 conda update --all
 # Download albacore
-wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-1.2.6-cp35-cp35m-manylinux1_x86_64.whl
+wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-2.0.1-cp36-cp36m-manylinux1_x86_64.whl
 # Install albacore
 pip install ont_albacore*.whl
 # Exit environment
