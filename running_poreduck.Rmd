@@ -15,9 +15,10 @@ output:
 
 # What is poreduck
 .pull-left[
-Two simple scripts designed to:
+Three simple scripts designed to:
 1. transfer data to a server.
 2. Run albacore on said server.
+3. Generate some qc metrics from the fastq files generated.
 ]
 .pull-right[
 <img src=images/poreduck_logo.png width="70%">
@@ -45,6 +46,8 @@ echo 'export PATH=$PATH:$HOME/anaconda3/bin' >> ~/.bash_profile
 # Exit terminal and open it again.
 # Now we need to update it.
 conda update --all
+# Confirm that your python3 is from conda.
+which python3
 ```
 
 ???
@@ -84,7 +87,8 @@ source deactivate
 
 How to remove an environment
 `conda remove --name poreduck_env --all`
-What pigz 
+
+Pigz is a parallel archiving tool used to extract and zip folders.
 
 ---
 
@@ -167,7 +171,7 @@ curl -o poreduck_test_files.tar.gz https://cloudstor.aarnet.edu.au/plus/index.ph
 # Running the transfer command
 ```{bash, eval=FALSE}
 source activate poreduck_env
-transfer_fast5_to_server.py \   
+poreduck transfer_to_server \   
 --reads_dir </path/to/reads> \ 
 --server_name <your_hpc> \ 
 --user_name <user_on_hpc> \   
@@ -200,11 +204,12 @@ We do have an issue however with albacore requiring python3.5 and us being on py
 ssh <username>@<servername>
 # Albacore now supports python3.6!
 PYTHON_VERSION=3.6
-conda create --name albacore_env python=${PYTHON_VERSION} anaconda
+ALBACORE_VERSION=2.0.1
+conda create --name albacore_env_${ALBACORE_VERSION} python=${PYTHON_VERSION} anaconda
 # Update the conda library
 conda update --all
 # Download albacore
-wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-2.0.1-cp36-cp36m-manylinux1_x86_64.whl
+wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-${ALBACORE_VERSION}-cp36-cp36m-manylinux1_x86_64.whl
 # Install albacore
 pip install ont_albacore*.whl
 # Exit environment
@@ -213,17 +218,24 @@ source deactivate
 
 ---
 
-# Download poreduck
+# Download and setup poreduck
 ```{bash, eval=FALSE}
+# Download the repository
 git clone https://github.com/alexiswl/poreduck.git
-# Now run the help command to see our parameters
-./poreduck/albcore_server_scaled.py --help
+# Change into the poreduck repository
+cd poreduck
+# Install into your anaconda directory using distutils
+python3 setup.py install
+# Now run the help command to see the different tools available
+poreduck --help
 ```
+
+Do not delete the repository, we need the template files for running albacore on the server.
 
 ---
 
 # The template files
-We have four template files, two SGE, two for PBS/Torque.  
+We have siz template files, two SGE, two for PBS/Torque and two for slurm  
 One for each HPC type will represent a template file extraction job.  
 One for each HPC type will represent a template albacore execution job.  
 Let's look at these two files, unfortunately we cannot use a GUI on the server.  
@@ -237,10 +249,10 @@ We just need to make sure that the script activates the albacore environment **b
 
 ---
 
-# Running albacore_server_scaled.
+# Running albacore on the HPC
 Using our uploaded lambda data let's run the following:
 ```{bash, eval=FALSE}
-./poreduck/albacore_server_scaled.py \   
+poreduck albacore_on_server \   
 --reads_dir </path/to/dest/on/hpc/fast5> \ 
 --qsub_type TORQUE \
 --qsub_extraction_template poreduck/qsub_templates/extraction_pbs_template.sh \
@@ -254,4 +266,18 @@ You can log into the hpc using another terminal window and type in the following
 cd /path/to/dest/on/hpc/fast5
 cat poreduck_logs/  # Press tab, then press enter.
 ```
+
+---
+
+# Generating plots
+Now that we have the fastq data, lets generate some QC plots of the data.
+```{bash, eval=FALSE}
+poreduck qc_plots --no_csv --fastq_dir ./fastq/ --gzipped --output_dir qc_plots/ --clip --sample_name "Lambda Run"
+```
+
+Let's go through some of the less intuitive parameters listed.
+
+The --no_csv is used if you do not have a list of metadata files from transferring the data from poreduck.
+If you do, then you will have access to the mux number and duration times which add on a couple of extra plots. The gzipped parameter is used if the fastq files are gzipped. Clip is used to prevent squishing of the histogram. Some reads are extra-long (but most likely pseudo reads, these are omitted from the plot
+
 
