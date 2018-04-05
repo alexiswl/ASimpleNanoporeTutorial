@@ -1,8 +1,8 @@
 ---
-title: "Testing poreduck"
+title: "tarMyFast5 with Docker"
 subtitle: "In memory of two poor ducks."
 author: "Alexis Lucattini"
-date: "2017/08/17"
+date: "2018/04/17"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -15,269 +15,180 @@ output:
 
 # What is poreduck
 .pull-left[
-Three simple scripts designed to:
-1. transfer data to a server.
-2. Run albacore on said server.
-3. Generate some qc metrics from the fastq files generated.
+Two simple programs designed to:
+1. tarMyFast5:
+  + Pacakge fast5 data on a laptop ready for transfer to a server. 
+  + Provide some theoretical run metrics
+2. albacoreHPC
+  + Run albacore on said server.
+  + And generate some actual run metrics.
 ]
 .pull-right[
 <img src=images/poreduck_logo.png width="70%">
 ]
 
-### Before commencing this tutorial.
-Please complete the basic_shell_logging tutorial.
+---
+
+# Downloading the test data.
+We have been fortunate to have a repository on AARNET's cloud stor.  
+Please download the following [compressed zip file](https://cloudstor.aarnet.edu.au/plus/s/YF69Ppmh5xTg3LQ) and extract the reads folder into the appropriate directory.
 
 ---
 
-# Installing conda on desktop (5 mins)
+# Tar my fast5 steps
+1. Install Docker 
 
-```{bash, eval=FALSE}
-# Set the version number
-anaconda_version="4.4.0"
-# Download anaconda3 using the wget command
-wget https://repo.continuum.io/archive/Anaconda3-${anaconda_version}-MacOSX-x86_64.sh
-# If wget is not found, try curl
-curl -o Anaconda3-${anaconda_version}-MacOSX-x86_64.sh https://repo.continuum.io/archive/Anaconda3-${anaconda_version}-MacOSX-x86_64.sh
-# Install anaconda. -b forces install without asking questions.
-# -p sets anaconda to be installed in our home directory.
-bash Anaconda3-${anaconda_version}-MacOSX-x86_64.sh -b -p $HOME/anaconda3
-# Add anaconda to path, note single quotes, not double quotes.
-echo 'export PATH=$PATH:$HOME/anaconda3/bin' >> ~/.bash_profile
-# Exit terminal and open it again.
-# Now we need to update it.
-conda update --all
-# Confirm that your python3 is from conda.
-which python3
-```
+2. Download docker image
 
-???
+3. Create a docker container
 
-I can't find conda.
-Add the following to the bash profile
-export PATH=$HOME/anaconda3/bin:$PATH
+4. Copy across the samplesheet into the container
 
+5. Commit the container to a new image
 
+6. Mount the reads folder and run the new image
+
+7. Rsyncing to a server
 
 ---
 
-# Creating a conda environment (10 mins)
-.small[An environment is a list of settings where software versions and paths are all calibrated for a particular program or list of programs.  
-However, unlike your general workspace, an environment must be 'sourced' and installations of programs into an 'environment' will not disrupt your general workspace.
+# Installing Docker (5-10 mins)
+
+**Windows and Mac users**  
+Docker enables us to run the same program on every platform.
+
+We will use the [Docker toolbox](https://docs.docker.com/toolbox/overview/) for Unix/Mac systems.
+Docker toolbox is the legacy system and is compatible on Windows 7 and above.
+
+.small[You should also install Git Bash and Kitematic as recommended by the docker installer]
+
+**Ubuntu users**  
+`sudo apt-get install docker.io`  
+`sudo groupadd docker`  
+`sudo gpasswd -a $USER docker`  
+Now log out and back in or run `sudo run newgrp docker`.  
+Then `sudo service docker restart`  
+You should not have to use sudo when running docker commands from now on.
+
+---
+
+# Downloading the docker image (10-mins)
+
+.pull-left[
+## Terminal by platfrom
+**Windows users**  
+Open up Git Bash
+
+**Mac Users**  
+Open up Docker Quick Start Terminal
+
+**Ubuntu users**  
+Open up a new terminal
 ]
+
+.pull-right[
+## Commands to run
 ```{bash, eval=FALSE}
-PYTHON_VERSION=3.6
-conda create --name poreduck_env python=${PYTHON_VERSION} anaconda
-# Source the environment
-source activate poreduck_env
-# We will need the latest version of git.
-conda install -c anaconda git -y
-# And pigz
-conda install -c anaconda pigz -y
-# And paramiko
-conda install -c anaconda paramiko -y
-# Create a directory for github projects and move to this directory.
-mkdir -p GitHub && cd GitHub
-# Now download poreduck
-git clone https://github.com/alexiswl/poreduck.git
-# Now deactivate the environment, we need to edit some files.
-source deactivate
+# Download the image
+docker pull alexiswl/poreduck
+# List the images
+docker images
+# Create a docker instance
+docker container create alexiswl/poreduck
+# See the name of the instance
+docker ps -a
+# The container name will be on the far right
+# It will be something like elegant_swan
+# For the rest of this tutorial, 
+# please substitute elegant_swan with your container.
 ```
-
-???
-
-How to remove an environment
-`conda remove --name poreduck_env --all`
-
-Pigz is a parallel archiving tool used to extract and zip folders.
+]
 
 ---
 
-# Modifying our environment.
-We can further modify our conda environment so that poreduck is in our path.
+# Copy across the samplesheet (3 mins)
+.pull-left[
+## About the samplesheet
+The samplesheet is a tab delimited file. 
+The samplesheet has the following header columns.
+1. SampleName
+
+2. UTCMuxStartDate
+
+3. UTCMuxStartTime
+
+4. UTCSeqStartDate
+
+5. UTCSeqStartTime
+]
+.pull-right[
+## Commands to run
 ```{bash, eval=FALSE}
-cd $HOME/anaconda3/envs/poreduck_env
-mkdir -p ./etc/conda/activate.d
-mkdir -p ./etc/conda/deactivate.d
-touch ./etc/conda/activate.d/env_vars.sh
-touch ./etc/conda/deactivate.d/env_vars.sh
+# Download the test samplesheet
+wget -O samplesheet.tsv https://raw.github.com/alexiswl/ASimpleNanoporeTutorial/master/samplesheet.tsv
+# View the samplesheet
+cat samplesheet.tsv
+# Copy the samplesheet into the container
+docker container cp samplesheet.tsv elegant_swan:/root/samplesheet.tsv
 ```
+]
 
 ---
 
-# Editing the two env_vars files.
-Open up the files in textEdit or the command line and add the following to:
-1. `anaconda3/envs/poreduck_env/etc/conda/activate.d/env_vars.sh`
+# Committing the container (3 mins)
+We will now convert the modified container back into an image.
+
+.pull-left[
+## Containers vs images
+The terms 'containers' and 'images' are sometimes interchanged.
+They are different, for more information
+this [stack-overflow](https://stackoverflow.com/questions/23735149/what-is-the-difference-between-a-docker-image-and-a-container) thread is worth reads.
+]
+.pull-right[
+## Commands to run
 ```{bash, eval=FALSE}
-#!/bin/bash
-OLDPATH=$PATH
-PATH=$PATH:$HOME/GitHub/poreduck
+# Commit the container
+docker container commit elegant_swan poreduck_lambda
+# View the list of images
+docker images
 ```
-
-2. `anaconda3/envs/poreduck_env/etc/conda/deactivate.d/env_vars.sh`
-```{bash, eval=FALSE}
-#!/bin/bash
-PATH=$OLDPATH
-```
-
-???
-
-source https://conda.io/docs/using/envs.html
+]
 
 ---
 
-# Did this work?
+## Mounting the reads path / running the container
+Mounting uses the --volume parameter.
+It allows the running container to read/write and execute files on the laptop.
+By default, no files or folders are accessible to the container
+.pull-left[
+### Default /path/to/reads by platform
+**Windows users**
+`/c/data`
+.small[Change this to /c/Users/<User>/MinKNOW/data instead]
 
-The which command should return a link to our github file.
+**Mac Users**
+`/Library/MinKNOW/data/reads`
 
+**Ubuntu users**
+`/var/lib/MinKNOW/data/reads
+]
+.pull-right[
+## Commands to run
 ```{bash, eval=FALSE}
-source activate poreduck_env
-which transfer_fast5_to_server.py
-source deactivate
+# Make note of quotes
+docker run --volume '/path/to/reads':/data/reads poreduck_lambda --reads_path /data/reads --samplesheet /root/samplesheet.tsv
 ```
+]
+
 
 ---
 
-# Downloading some test data (10 mins)
+You're done!
+You will now see next to fast5 for each of your runs, there will be a 'metadata' folder and a 'plots' folder.
+The metadata folder contains a tsv file for each folder in the fast5 folder.
 
-We can use curl to download the data from cloudstor
-```{bash, eval=FALSE}
-curl -o poreduck_test_files.tar.gz \  
-https://cloudstor.aarnet.edu.au/plus/index.php/s/vTbIOQdILUOgazt/download
-# Verify the installation:
-curl -o poreduck_test_files.md5 \
-https://cloudstor.aarnet.edu.au/plus/index.php/s/tCVEB3ibMA6C7ob/download
-md5sum -c poreduck_test_files.md5
-```
+# Transferring your data to a server with rsync
+Running rsync to transfer data to your server.
 
-Now lets move that to where MinKNOW places our runs.  
-* Linux: `/var/lib/MinKNOW/data/reads`
-* Mac: `/Library/MinKNOW/data/reads`
-* Windows: 
-
-`mkdir -p /path/to/MinKNOW/data/reads`
-`mv poreduck_test_files.tar.gz /path/to/MinKNOW/data/reads`  
-`cd /path/to/MinKNOW/data/reads/`  
-`tar -xf poreduck_test_files.tar.gz`  
-We can now confirm by typing
-`ls`
-We should see two folders ending in '_TEST'
-
-???
-
-curl -o poreduck_test_files.tar.gz https://cloudstor.aarnet.edu.au/plus/index.php/s/vTbIOQdILUOgazt/download
-
----
-
-# Running the transfer command
-```{bash, eval=FALSE}
-source activate poreduck_env
-poreduck transfer_to_server \   
---reads_dir </path/to/reads> \ 
---server_name <your_hpc> \ 
---user_name <user_on_hpc> \   
---dest_directory </path/to/dest/on/hpc> \  
---sample_name TEST
-```
-
-### Verying success
-
-Type the following command into the terminal.  
-We should see our files zipped up nicely.
-```{bash, eval=FALSE}
-ssh user_name@server_name "ls -R /path/to/dest/on/hpc"
-```
-
----
-
-# Using albacore_server_scaled.py
-
-This is a little more complex and needs to be customised to your HPC.  
-At the moment this script supports both SGE and TORQUE.  
-
-This script has no dependencies outside of conda so we don't have an issue there.  
-We do have an issue however with albacore requiring python3.5 and us being on python 3.6.  
-
-** Update: Albacore now supported on 3.6, we should create a separate environment for it anyway.
-
-```{bash, eval=FALSE}
-# SSH into our server
-ssh <username>@<servername>
-# Albacore now supports python3.6!
-PYTHON_VERSION=3.6
-ALBACORE_VERSION=2.0.1
-conda create --name albacore_env_${ALBACORE_VERSION} python=${PYTHON_VERSION} anaconda
-# Update the conda library
-conda update --all
-# Download albacore
-wget https://mirror.oxfordnanoportal.com/software/analysis/ont_albacore-${ALBACORE_VERSION}-cp36-cp36m-manylinux1_x86_64.whl
-# Install albacore
-pip install ont_albacore*.whl
-# Exit environment
-source deactivate
-```
-
----
-
-# Download and setup poreduck
-```{bash, eval=FALSE}
-# Download the repository
-git clone https://github.com/alexiswl/poreduck.git
-# Change into the poreduck repository
-cd poreduck
-# Install into your anaconda directory using distutils
-python3 setup.py install
-# Now run the help command to see the different tools available
-poreduck --help
-```
-
-Do not delete the repository, we need the template files for running albacore on the server.
-
----
-
-# The template files
-We have siz template files, two SGE, two for PBS/Torque and two for slurm  
-One for each HPC type will represent a template file extraction job.  
-One for each HPC type will represent a template albacore execution job.  
-Let's look at these two files, unfortunately we cannot use a GUI on the server.  
-```{bash, eval=FALSE}
-# We can use the cat command to visualise the files.
-cat poreduck/templates/qsub_templates/albacore_pbs_template.sh
-```
-
-Everything in capital letters will be replaced during the course of the run.
-We just need to make sure that the script activates the albacore environment **before** running the COMMAND and then deactivates the environment once again.
-
----
-
-# Running albacore on the HPC
-Using our uploaded lambda data let's run the following:
-```{bash, eval=FALSE}
-poreduck albacore_on_server \   
---reads_dir </path/to/dest/on/hpc/fast5> \ 
---qsub_type TORQUE \
---qsub_extraction_template poreduck/qsub_templates/extraction_pbs_template.sh \
---qsub_albacore_temaplte poreduck/qsub_templates/albacore_pbs_template.sh \
---sample_name TEST
-```
-
-A logging file should appear.
-You can log into the hpc using another terminal window and type in the following
-```{bash, eval=FALSE}
-cd /path/to/dest/on/hpc/fast5
-cat poreduck_logs/  # Press tab, then press enter.
-```
-
----
-
-# Generating plots
-Now that we have the fastq data, lets generate some QC plots of the data.
-```{bash, eval=FALSE}
-poreduck qc_plots --no_csv --fastq_dir ./fastq/ --gzipped --output_dir qc_plots/ --clip --sample_name "Lambda Run"
-```
-
-Let's go through some of the less intuitive parameters listed.
-
-The --no_csv is used if you do not have a list of metadata files from transferring the data from poreduck.
-If you do, then you will have access to the mux number and duration times which add on a couple of extra plots. The gzipped parameter is used if the fastq files are gzipped. Clip is used to prevent squishing of the histogram. Some reads are extra-long (but most likely pseudo reads, these are omitted from the plot
-
-
+Before running the rsync tutorial, please see the 'creating an ssh-key' tutorial.
+This will mean you not have to enter a password, everytime the rsync runs.
