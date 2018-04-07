@@ -4,7 +4,8 @@
     <title>SSH onto a HPC</title>
     <meta charset="utf-8">
     <meta name="author" content="Alexis Lucattini" />
-    <link href="libs/remark-css-0.0.1/example.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
   </head>
   <body>
     <textarea id="source">
@@ -17,7 +18,7 @@ class: center, middle, inverse, title-slide
 ---
 
 
-# Installing commandline tools 
+# Installing commandline tools (Mac OSX)
 ### (0 to 10 minutes)
 Mac OSX by default does not have command line tools installed.  
 This is a simple fix as shown [here](http://railsapps.github.io/xcode-command-line-tools.html)
@@ -43,6 +44,23 @@ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/
 
 ---
 
+# Installing commandline tools (Windows)
+### (0 to 10 minutes)
+Install [Git Bash](https://gitforwindows.org/).  
+Open up the Git Bash app.
+
+
+```bash
+# Ensure ssh and ssh-copy-id commands exist
+which ssh
+which ssh-copy-id
+# These two commands should return these two outputs respectively.
+/usr/bin/ssh/
+/usr/bin/ssh-copy-id 
+```
+
+---
+
 # SSH into the cluster.
 Let's first try and ssh into the cluster. SSH stands for *secure shell login*
 
@@ -59,10 +77,6 @@ The following commands will be needed to move and transfer files:
 `mv, cp, rm, touch`  
 You can practise these on your own computer first before trying on the server.  
 Type `exit` to leave the server and return to your computer.
-
-???
-
-For WEHI users, the server name is "torquelord.hpc.wehi.edu.au"
 
 
 ---
@@ -83,18 +97,33 @@ ssh username@&lt;server_name&gt;
 
 ---
 
-# I can't install brew or ssh-copy-id
+# Troubleshooting
+## I have copied across my id, but it still won't log in automatically.
+Try change the permissions on your .ssh folder
+
+```bash
+chmod -R 700 ~/.ssh
+```
+
+If this still doesn't work, make sure that only you have permissions on your home directory.
+View this [Stack-Exchange Thread](https://unix.stackexchange.com/questions/37164/ssh-and-home-directory-permissions) for more details.
+
+---
+
+# Troubleshooting
+## I can't install brew or ssh-copy-id (Mac OSX)
 That's okay, we can copy our id onto the server
 
 ```bash
-scp ~/.ssh/id_rsa.pub &lt;username&gt;@torquelord.hpc.wehi.edu.au:
+scp ~/.ssh/id_rsa.pub &lt;username&gt;@&lt;server&gt;:
 ssh &lt;username&gt;@&lt;server_name&gt;
 # Now we're on the server; Create a .ssh directory for the server
 mkdir -p -m 700 ~/.ssh
 # Now append that id_rsa.pub key to our list of authorized keys
 cat id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys
-# Our work here is done. Let's delete the .pub file
+# Our work here is done. Let's delete the .pub file and leave the server
 rm id_rsa.pub
+exit
 ```
 
 ---
@@ -108,9 +137,6 @@ https://www.amazon.com.au/Shell-Scripting-Tutorial-Steve-Parker-ebook/dp/B00C2EG
 
 Free version is here:
 https://www.shellscript.sh
-
-### For those at WEHI, these may be useful:
-https://connect.wehi.edu.au/research/computationalbiology/Pages/,DanaInfo=catalyst.wehi.edu.au+Research-Computing.aspx
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
@@ -118,7 +144,15 @@ https://connect.wehi.edu.au/research/computationalbiology/Pages/,DanaInfo=cataly
 "highlightLines": true,
 "countIncrementalSlides": false
 });
-if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({

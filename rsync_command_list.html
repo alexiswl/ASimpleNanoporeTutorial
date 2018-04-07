@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Rsync nanopore data onto a HPC</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Alexis Lucattini" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Rsync nanopore data onto a HPC
+### Alexis Lucattini
+### 2017/08/17
+
+---
+
+
+# Sending data onto a server
+The most common way to send data from a MinION laptop to a cluster is through the rsync command.  
+
+Rsync is installed by default on Ubuntu and MacOS systems.
+
+Unforunately for Windows users, life is less straight forward.  
+You can either use:  
+1. Cygwin  
+2. A docker container such as andthensome/docker-node-rsync 
+  + This will require you to mount the appropriate directory and re-perform the ssh key setup in the previous step from within the docker container.
+
+---
+
+# Setting up a ssh-key
+Make sure you can ssh into the rsync server prior to running the command.
+See [tutorial 1](./basic_shell_logging.html) for assistance.
+
+---
+
+# The actual rsync command
+
+This is the command to use. Do not be alarmed. We will go through it in next slides
+
+```bash
+# Setup variables
+local_read_dir=/path/to/reads
+username=&lt;server_username&gt;
+servername=&lt;name_of_server
+remote_read_dir=/path/to/server
+# Rsync command
+rsync --recursive --times --checksum \
+--prune-empty-dirs --remove-source-files --stats \
+--include '*/' --include '*.fast5.tar.gz' --include '*.tsv' \
+--exclude '*' \
+$local_read_dir username@$remote_read_dir
+```
+
+---
+
+# Rsync options
+* --recusive: Copy files within folder
+
+* --times: Preserve time stamps
+
+* --prune-empty-dirs: This ensures that any directories with no matching files are not placed on the server
+
+* --remove-source-files: Deletes files from the source folder.
+
+* --stats: Print verbose output of the transfer
+* --include / --exclude: Select which files to send across.
+  + Order of commands important.
+  + When using this option, we must first use --include '*/' to search recursively.
+  + Then we include all files ending with '\*.fast5.tar.gz' and '\*.tsv'
+  + We then exclude all other files.
+* Local path
+
+* Remote path
+
+---
+
+# Debugging
+
+Prior to running the command, add the --dry-run parameter.  
+This will print a list of the files that would have been moved/modified without actually doing the moving.
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

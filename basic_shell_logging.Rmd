@@ -12,7 +12,7 @@ output:
       countIncrementalSlides: false
 ---
 
-# Installing commandline tools 
+# Installing commandline tools (Mac OSX)
 ### (0 to 10 minutes)
 Mac OSX by default does not have command line tools installed.  
 This is a simple fix as shown [here](http://railsapps.github.io/xcode-command-line-tools.html)
@@ -35,6 +35,22 @@ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/
 
 ---
 
+# Installing commandline tools (Windows)
+### (0 to 10 minutes)
+Install [Git Bash](https://gitforwindows.org/).  
+Open up the Git Bash app.
+
+```{bash, eval=FALSE}
+# Ensure ssh and ssh-copy-id commands exist
+which ssh
+which ssh-copy-id
+# These two commands should return these two outputs respectively.
+/usr/bin/ssh/
+/usr/bin/ssh-copy-id 
+```
+
+---
+
 # SSH into the cluster.
 Let's first try and ssh into the cluster. SSH stands for *secure shell login*
 
@@ -50,10 +66,6 @@ The following commands will be needed to move and transfer files:
 `mv, cp, rm, touch`  
 You can practise these on your own computer first before trying on the server.  
 Type `exit` to leave the server and return to your computer.
-
-???
-
-For WEHI users, the server name is "torquelord.hpc.wehi.edu.au"
 
 
 ---
@@ -73,10 +85,23 @@ ssh username@<server_name>
 
 ---
 
-# I can't install brew or ssh-copy-id
+# Troubleshooting
+## I have copied across my id, but it still won't log in automatically.
+Try change the permissions on your .ssh folder
+```{bash, eval=FALSE}
+chmod -R 700 ~/.ssh
+```
+
+If this still doesn't work, make sure that only you have permissions on your home directory.
+View this [Stack-Exchange Thread](https://unix.stackexchange.com/questions/37164/ssh-and-home-directory-permissions) for more details.
+
+---
+
+# Troubleshooting
+## I can't install brew or ssh-copy-id (Mac OSX)
 That's okay, we can copy our id onto the server
 ```{bash, eval=FALSE}
-scp ~/.ssh/id_rsa.pub <username>@torquelord.hpc.wehi.edu.au:
+scp ~/.ssh/id_rsa.pub <username>@<server>:
 ssh <username>@<server_name>
 # Now we're on the server; Create a .ssh directory for the server
 mkdir -p -m 700 ~/.ssh
@@ -86,11 +111,6 @@ cat id_rsa.pub >> ~/.ssh/authorized_keys
 rm id_rsa.pub
 exit
 ```
-
-???
-
-700 seems to allow write while 600 does not which does not make sense.
-
 
 ---
 
@@ -103,6 +123,3 @@ https://www.amazon.com.au/Shell-Scripting-Tutorial-Steve-Parker-ebook/dp/B00C2EG
 
 Free version is here:
 https://www.shellscript.sh
-
-### For those at WEHI, these may be useful:
-https://connect.wehi.edu.au/research/computationalbiology/Pages/,DanaInfo=catalyst.wehi.edu.au+Research-Computing.aspx

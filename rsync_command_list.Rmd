@@ -1,0 +1,77 @@
+---
+title: "Rsync nanopore data onto a HPC"
+subtitle: ""
+author: "Alexis Lucattini"
+date: "2017/08/17"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+# Sending data onto a server
+The most common way to send data from a MinION laptop to a cluster is through the rsync command.  
+
+Rsync is installed by default on Ubuntu and MacOS systems.
+
+Unforunately for Windows users, life is less straight forward.  
+You can either use:  
+1. Cygwin  
+2. A docker container such as andthensome/docker-node-rsync 
+  + This will require you to mount the appropriate directory and re-perform the ssh key setup in the previous step from within the docker container.
+
+---
+
+# Setting up a ssh-key
+Make sure you can ssh into the rsync server prior to running the command.
+See [tutorial 1](./basic_shell_logging.html) for assistance.
+
+---
+
+# The actual rsync command
+
+This is the command to use. Do not be alarmed. We will go through it in next slides
+```{bash, eval=FALSE}
+# Setup variables
+local_read_dir=/path/to/reads
+username=<server_username>
+servername=<name_of_server
+remote_read_dir=/path/to/server
+# Rsync command
+rsync --recursive --times --checksum \
+--prune-empty-dirs --remove-source-files --stats \
+--include '*/' --include '*.fast5.tar.gz' --include '*.tsv' \
+--exclude '*' \
+$local_read_dir username@$remote_read_dir
+```
+
+---
+
+# Rsync options
+* --recusive: Copy files within folder
+
+* --times: Preserve time stamps
+
+* --prune-empty-dirs: This ensures that any directories with no matching files are not placed on the server
+
+* --remove-source-files: Deletes files from the source folder.
+
+* --stats: Print verbose output of the transfer
+* --include / --exclude: Select which files to send across.
+  + Order of commands important.
+  + When using this option, we must first use --include '*/' to search recursively.
+  + Then we include all files ending with '\*.fast5.tar.gz' and '\*.tsv'
+  + We then exclude all other files.
+* Local path
+
+* Remote path
+
+---
+
+# Debugging
+
+Prior to running the command, add the --dry-run parameter.  
+This will print a list of the files that would have been moved/modified without actually doing the moving.
