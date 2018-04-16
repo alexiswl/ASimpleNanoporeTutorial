@@ -1,2 +1,0 @@
-SampleName	UTCMuxStartDate	UTCMuxStartTime	UTCSeqStartDate	UTCSeqStartTime
-LAMBDA_RAPID_TEST	20170628	0521	20170628	0521
