@@ -112,14 +112,15 @@ docker ps -a
 The samplesheet is a tab delimited file. 
 The samplesheet has the following header columns.
 1. SampleName
-
-2. UTCMuxStartDate
-
-3. UTCMuxStartTime
-
-4. UTCSeqStartDate
-
-5. UTCSeqStartTime
+  + *LAMBDA_RAPID_TEST*
+2. UTCMuxStartDate:
+  + *20170628*
+3. UTCMuxStartTime:
+  + *0521*
+4. UTCSeqStartDate:
+  + *20170628*
+5. UTCSeqStartTime:
+  + *0526*
 ]
 .pull-right[
 ## Commands to run
