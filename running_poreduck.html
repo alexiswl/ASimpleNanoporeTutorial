@@ -188,7 +188,7 @@ docker images
 ## Mounting the reads path / running the container
 Mounting uses the --volume parameter.
 It allows the running container to read/write and execute files on the laptop.
-By default, no files or folders are accessible to the container
+By default, no files or folders are accessible to the container.
 .pull-left[
 ### Default /path/to/reads by platform
 **Windows users**
@@ -198,14 +198,16 @@ By default, no files or folders are accessible to the container
 `/Library/MinKNOW/data/reads`
 
 **Ubuntu users**
-`/var/lib/MinKNOW/data/reads
+`/var/lib/MinKNOW/data/reads`
+
+.small[`/path/to/reads` should be `/data/reads` if you completed the step on the  previous page.]
 ]
 .pull-right[
 ## Commands to run
 
 ```bash
 # Make note of quotes
-docker run --volume '/path/to/reads':/data/reads poreduck_lambda tarMyFast5 --reads_path /data/reads --samplesheet /root/samplesheet.tsv
+docker run --volume '/path/to/reads':/data/reads poreduck_lambda tarMyFast5 --reads_path /data/reads --samplesheet /samplesheet.tsv
 ```
 ]
 
