@@ -108,10 +108,10 @@ docker ps -a
 
 # Copy across the samplesheet (3 mins)
 .pull-left[
-## About the samplesheet
+### About the samplesheet
 The samplesheet is a tab delimited file. 
 The samplesheet has the following header columns.
-1. SampleName .tiny[as named in MinKNOW]
+1. SampleName .small[as named in MinKNOW]
   + *LAMBDA_RAPID_TEST*
 2. UTCMuxStartDate:
   + *20170628*
@@ -121,10 +121,11 @@ The samplesheet has the following header columns.
   + *20170628*
 5. UTCSeqStartTime:
   + *0526*
-.tiny[*If you forgot to name your sample in MinKNOW, use '%' followed by your sample name of choice.]
+
+.small[*If you forgot to name your sample in MinKNOW, use '%' followed by your sample name of choice.*]
 ]
 .pull-right[
-## Commands to run
+### Commands to run
 ```{bash, eval=FALSE}
 # Download the test samplesheet
 wget -O samplesheet.tsv https://raw.github.com/alexiswl/ASimpleNanoporeTutorial/master/samplesheet.tsv
