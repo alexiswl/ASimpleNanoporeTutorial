@@ -118,7 +118,7 @@ docker ps -a
 ## About the samplesheet
 The samplesheet is a tab delimited file. 
 The samplesheet has the following header columns.
-1. SampleName
+1. SampleName .tiny[as named in MinKNOW]
   + *LAMBDA_RAPID_TEST*
 2. UTCMuxStartDate:
   + *20170628*
@@ -128,6 +128,7 @@ The samplesheet has the following header columns.
   + *20170628*
 5. UTCSeqStartTime:
   + *0526*
+.tiny[*If you forgot to name your sample in MinKNOW, use '%' followed by your sample name of choice.]
 ]
 .pull-right[
 ## Commands to run
@@ -138,7 +139,7 @@ wget -O samplesheet.tsv https://raw.github.com/alexiswl/ASimpleNanoporeTutorial/
 # View the samplesheet
 cat samplesheet.tsv
 # Copy the samplesheet into the container
-docker container cp samplesheet.tsv elegant_swan:/root/samplesheet.tsv
+docker container cp samplesheet.tsv elegant_swan:/samplesheet.tsv
 ```
 ]
 
@@ -166,6 +167,24 @@ docker images
 
 ---
 
+## Allowing a mount to docker. (3 mins) .tiny["Windows/Mac"]
+
+.pull-left[
+.small[
+1. Shut down KiteMatic and open up VirtualBox.
+2. By default, docker only allows mounts the user directory.
+3. Open up virtual box, select default. 
+4. Mount `C:/data/` or `/Library/MinKNOW/data/` to `/data`. 
+5. Press Ctrl+F to shut down the Virtual box.
+6. Reopen KiteMatic.
+]
+]
+.pull-right[
+&lt;img src="./images/docker_settings.png" width="110%"&gt;
+]
+
+---
+
 ## Mounting the reads path / running the container
 Mounting uses the --volume parameter.
 It allows the running container to read/write and execute files on the laptop.
@@ -174,7 +193,6 @@ By default, no files or folders are accessible to the container
 ### Default /path/to/reads by platform
 **Windows users**
 `/c/data`
-.small[Change this to /c/Users/&lt;User&gt;/MinKNOW/data instead]
 
 **Mac Users**
 `/Library/MinKNOW/data/reads`
@@ -187,7 +205,7 @@ By default, no files or folders are accessible to the container
 
 ```bash
 # Make note of quotes
-docker run --volume '/path/to/reads':/data/reads poreduck_lambda --reads_path /data/reads --samplesheet /root/samplesheet.tsv
+docker run --volume '/path/to/reads':/data/reads poreduck_lambda tarMyFast5 --reads_path /data/reads --samplesheet /root/samplesheet.tsv
 ```
 ]
 
