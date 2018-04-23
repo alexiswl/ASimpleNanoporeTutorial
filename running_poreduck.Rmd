@@ -19,6 +19,7 @@ Two simple programs designed to:
 1. tarMyFast5:
   + Pacakge fast5 data on a laptop ready for transfer to a server. 
   + Provide some theoretical run metrics
+
 2. albacoreHPC
   + Run albacore on said server.
   + And generate some actual run metrics.

@@ -19,7 +19,7 @@ Rsync is installed by default on Ubuntu and MacOS systems.
 
 Unforunately for Windows users, life is less straight forward.  
 You can either use:  
-1. Cygwin  
+1. Cygwin
 2. A docker container such as andthensome/docker-node-rsync 
   + This will require you to mount the appropriate directory and re-perform the ssh key setup in the previous step from within the docker container.
 
@@ -45,7 +45,7 @@ rsync --recursive --times --checksum \
 --prune-empty-dirs --remove-source-files --stats \
 --include '*/' --include '*.fast5.tar.gz' --include '*.tsv' \
 --exclude '*' \
-$local_read_dir username@$remote_read_dir
+${local_read_dir} ${username}@${servername}:${remote_read_dir}
 ```
 
 ---
@@ -74,4 +74,6 @@ $local_read_dir username@$remote_read_dir
 # Debugging
 
 Prior to running the command, add the --dry-run parameter.  
-This will print a list of the files that would have been moved/modified without actually doing the moving.
+This will print a summary of the files that would have been moved/modified without actually doing the moving.
+
+Alternatively, you can remove the final parameter `${username}@${servername}:${remote_read_dir}` first. This will just print the list of files that will be transferred.

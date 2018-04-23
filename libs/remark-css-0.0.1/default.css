@@ -44,9 +44,6 @@ a, a > code {
 .pull-right ~ * {
   clear: both;
 }
-.small {
-  font-size: 70%
-}
 img, video, iframe {
   max-width: 100%;
 }
